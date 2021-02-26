@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    type: string
+    example: EDF027D6-A90E-425A-8001-EAE6A0F54C2F
+  minPrice:
+    type: number
+    example: 0
+  maxPrice:
+    type: number
+    example: 3
+  price:
+    type: number
+    example: 3
+  unitType:
+    type: string
+    example: package
+  surchargeId:
+    type: string
+    example: 59814AE9-4E6D-4F4E-BC6D-245028B7173A
+  specialValue:
+    type: string
+    example: '100,1.05'

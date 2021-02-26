@@ -1,0 +1,22 @@
+openapi: 3.0.1
+info:
+  title: Accessorial List Prices V1
+  description: This API is intended to expose carrier list price data for accessorials.
+  contact:
+    email: tyler.lacks@cardinalhealth.com
+  version: 1.0.0
+servers:
+  - url: >-
+      https://ofl-next-carrier-contract-resource-service.apps.cf.gc.cahcloud.net/v1
+tags:
+  - name: Accessorial List Price
+    description: Accessorial list price data.
+paths:
+  /accessorial-list-prices:
+    $ref: paths/accessorial-list-prices.yaml
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

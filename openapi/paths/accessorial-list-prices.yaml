@@ -1,0 +1,48 @@
+get:
+  tags:
+    - Accessorial List Price
+  summary: Retrieve specifc accessorial list prices.
+  description: >-
+    Retrieve specifc accessorial list prices based on accessorial, service level
+    and pickup date.
+  operationId: getAccessorialListPrice
+  parameters:
+    - name: code
+      in: query
+      description: Accessorial code
+      required: true
+      schema:
+        type: string
+    - name: descriptionCode
+      in: query
+      description: Accessorial description code
+      required: true
+      schema:
+        type: string
+    - name: serviceLevel
+      in: query
+      description: Service level for the shipment the accessorial pertains to
+      required: true
+      schema:
+        type: string
+    - name: pickupDate
+      in: query
+      description: Pickup date for the shipment with the accessorial
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/AccessorialListPrice.yaml
+    '404':
+      description: No data found based on the values in the request.
+      content: {}
+    '500':
+      description: >-
+        An internal server error occurred. Please contact the developer team for
+        assistance.
+      content: {}
