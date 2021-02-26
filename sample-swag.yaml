@@ -1,0 +1,1820 @@
+---
+swagger: "2.0"
+info:
+  description: "These are API used to interact with the iPrice application."
+  version: "1.0.0"
+  title: "iPrice API"
+  contact:
+    email: "julie.ecklund@cardinalhealth.com"
+paths:
+  /medical-iprice-customer:
+    get:
+      tags:
+      - "customer"
+      summary: "Retrieve customer information"
+      description: "Retrieve customer information by customer number (i.e. Soldto,\
+        \ Shipto) or by Local Consolidation Number (LCN)"
+      operationId: "getCustomer"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "customerNumber"
+        in: "query"
+        description: "ID of customer that needs to be fetched (8 digit id, or 10 digit\
+          \ with leading zeros, or 3 character LCN)"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/CustomerItem"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable - The API is not currently available"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-material:
+    get:
+      tags:
+      - "material"
+      summary: "Retrieve material information by material number"
+      description: "Retrieve material information by material number"
+      operationId: "getMaterial"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "materialNumber"
+        in: "query"
+        description: "ID of material that needs to be fetched"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/MaterialItem"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable - The API is not currently available"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-contract:
+    get:
+      tags:
+      - "contract"
+      summary: "Contract Inquiry"
+      description: "Retrieves supplier agreement contracts to which a specified customer\
+        \ and material belong.  The results will be sorted using the same logic contained\
+        \ within iPrice, and will exclude SmartPrice (GPO-009) agreements."
+      operationId: "getContract"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "customerNumber"
+        in: "query"
+        description: "Customer Number."
+        required: true
+        type: "string"
+      - name: "materialNumber"
+        in: "query"
+        description: "Material Number."
+        required: true
+        type: "string"
+      - name: "medsurgGPO"
+        in: "query"
+        description: "Medsurg GPO for the customer.  This is used to help sort the\
+          \ agreements returned by the API.  If not provided, the API will obtain\
+          \ it using the customerNumber."
+        required: false
+        type: "string"
+      - name: "labGPO"
+        in: "query"
+        description: "Lab GPO for the customer.  This is used to help sort the agreements\
+          \ returned by the API.  If not provided, the API will obtain it using the\
+          \ customerNumber."
+        required: false
+        type: "string"
+      - name: "prodCtgry"
+        in: "query"
+        description: "Product Category for the material. This is used to help sort\
+          \ the agreements returned by the API.  If not provided, the API will obtain\
+          \ it using the materialNumber."
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Contract"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable - The API is not currently available"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-contract/customer:
+    get:
+      tags:
+      - "contract"
+      summary: "Contract Customer Inquiry"
+      description: "Retrieves the customers that belong to a specified Supplier Agreement."
+      operationId: "getContractCustomer"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "agreementNumber"
+        in: "query"
+        description: "Supplier Agreement Number Number."
+        required: true
+        type: "string"
+      - name: "customerNumber"
+        in: "query"
+        description: "Customer Number."
+        required: false
+        type: "string"
+      - name: "returnLimit"
+        in: "query"
+        description: "Limits the number of customers returned.  Default value is 50."
+        required: false
+        type: "integer"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                required:
+                - "items"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    example: "More customers belong to this contract than can be fetched."
+                    description: "If there are more than the returnLimit customers\
+                      \ that belong to the contract, this property will be populated\
+                      \ and the items array will be limited to the returnLimit count."
+                  items:
+                    type: "array"
+                    items:
+                      $ref: "#/definitions/ContractCustomer"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable - The API is not currently available"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-report/priceCatalogCompare:
+    get:
+      tags:
+      - "report"
+      summary: "Price Catalog Compare Report"
+      description: "Retrieves the status of the Price Catalog Compare Report requests."
+      operationId: "getPCCReport"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "requestId"
+        in: "query"
+        description: "ID of request to check the status.  If not provided, the list\
+          \ of the requests generated for the user will be returned."
+        required: false
+        type: "integer"
+      - name: "getOptions"
+        in: "query"
+        description: "When true, this parameter will cause the API to return the list\
+          \ of valid productType options that may be requested for a specific user/workspace"
+        required: false
+        type: "boolean"
+      - name: "customerNumber"
+        in: "query"
+        description: "If the getOptions parameter is true, then when the customerNumber\
+          \ is provided, the API will include PCH record counts with the list of productType\
+          \ options"
+        required: false
+        type: "string"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ReportRequest"
+        "201":
+          description: "successful operation (actual response is 200.  This is the\
+            \ response when getOptions=true)"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ReportRequestOptions"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+    post:
+      tags:
+      - "report"
+      summary: "Price Catalog Compare Report"
+      description: "Submits a request for a Price Catalog Compare Report requests."
+      operationId: "submitPCCReport"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "customerNumber"
+        in: "query"
+        description: "Sold to customer number."
+        required: true
+        type: "string"
+      - name: "productType"
+        in: "query"
+        description: "Type of products to be included. A=All products; M=Medsurg products;\
+          \ L=Lab products; C=Cardinal Brand Products"
+        required: true
+        type: "string"
+      - name: "baseDate"
+        in: "query"
+        description: "mm/dd/yyyy.  Date for which to pull the pricing"
+        required: true
+        type: "string"
+      - name: "compareDate"
+        in: "query"
+        description: "mm/dd/yyyy.  Date to compare pricing to.  Must be after the\
+          \ baseDate"
+        required: false
+        type: "string"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                $ref: "#/definitions/ReportRequest"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-proposal:
+    get:
+      tags:
+      - "proposal"
+      summary: "Retrieve proposal information by proposal id"
+      description: "Retrieve proposal information by proposal id number"
+      operationId: "getProposal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "proposalId"
+        in: "query"
+        description: "Proposal Id"
+        required: true
+        type: "string"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            - "proposals"
+            properties:
+              result:
+                $ref: "#/definitions/ProposalHeader"
+              proposals:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ProposalDetail"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+    post:
+      tags:
+      - "proposal"
+      summary: "Create a new proposal / Retrieve a price quote"
+      description: "Create a new proposal"
+      operationId: "createProposal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "customerNumber"
+        in: "query"
+        description: "Customer Number"
+        required: true
+        type: "string"
+      - name: "materialNumber"
+        in: "query"
+        description: "Material Number"
+        required: true
+        type: "string"
+      - name: "um"
+        in: "query"
+        description: "Unit of Measure"
+        default: "Sales UoM for the material"
+        required: false
+        type: "string"
+      - name: "asOfDate"
+        in: "query"
+        description: "Pricing as of date (mm/dd/yyyy)"
+        default: "Today's date"
+        required: false
+        type: "string"
+      - name: "dc"
+        in: "query"
+        description: "Distribution Channel"
+        default: 10
+        required: false
+        type: "string"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                $ref: "#/definitions/ProposalDetail"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+    put:
+      tags:
+      - "proposal"
+      summary: "Update the pricing for a specific proposal"
+      description: "Update the pricing for a specific proposal"
+      operationId: "updateProposal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "proposalId"
+        in: "query"
+        description: "Proposal Id"
+        required: true
+        type: "integer"
+      - name: "lineNum"
+        in: "query"
+        description: "Line Number"
+        required: true
+        type: "integer"
+      - name: "loadAs"
+        description: "Load price as \"F\"irm, \"C\"ost Plus or \"L\"ist Less"
+        required: true
+        in: "query"
+        type: "string"
+      - name: "amount"
+        description: "Either the firm amount or markup percentage"
+        required: true
+        in: "query"
+        type: "number"
+      - name: "fromDate"
+        description: "Effective Date of new price"
+        in: "query"
+        type: "string"
+        default: "Uses the standard default logic as specified in iPrice"
+      - name: "toDate"
+        description: "Expiration Date of new price"
+        in: "query"
+        type: "string"
+        default: "Uses the standard default logic as specified in iPrice"
+      - name: "prcMessage"
+        description: "Internal Comment saved with the new price"
+        in: "query"
+        type: "string"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                $ref: "#/definitions/ProposalDetail"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+    delete:
+      tags:
+      - "proposal"
+      summary: "Deletes a specific proposal"
+      description: "Deletes a specific proposal"
+      operationId: "deleteProposal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "proposalId"
+        in: "query"
+        description: "Proposal Id"
+        required: true
+        type: "integer"
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                type: "object"
+                required:
+                - "success"
+                properties:
+                  success:
+                    type: "boolean"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-proposal/status:
+    get:
+      tags:
+      - "proposal"
+      summary: "Retrieve proposal status information"
+      description: "Retrieve proposalstatus information"
+      operationId: "getProposalStatus"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "proposalId"
+        in: "query"
+        description: "Proposal Id"
+        type: "integer"
+        default: "when not specified, the most recent proposals will be returned,\
+          \ based on the specified returnLimit"
+      - name: "returnLimit"
+        in: "query"
+        description: "Number of proposals to return"
+        type: "integer"
+        default: "when not specified, the five most recent proposals will be returned."
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ProposalHeader"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+  /medical-iprice-proposal/submit:
+    post:
+      tags:
+      - "proposal"
+      summary: "Submit a proposal to ECC"
+      description: "Submit a proposal to ECC"
+      operationId: "submitProposal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uid"
+        in: "header"
+        description: "Unique identifier of the end user who is invoking the API call.\
+          \  Must be authorized for the iPrice application."
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Bearer token for the iPrice application."
+        required: true
+        type: "string"
+      - name: "proposalId"
+        in: "query"
+        description: "Proposal Id"
+        type: "integer"
+        required: true
+      - name: "lineNum"
+        in: "query"
+        description: "Line Number"
+        type: "integer"
+        required: true
+      - name: "governanceReason"
+        in: "query"
+        description: "Reason for governance approval.  Should be provided when a governance\
+          \ exception was encountered."
+        type: "string"
+        required: false
+      - name: "workspace"
+        in: "query"
+        description: "iPrice Workspace (aka Position Code)"
+        default: "Will default to the proper workspace.  Only required for Sales Rep\
+          \ Users with multiple assigned workspaces (aka positions)"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            required:
+            - "result"
+            properties:
+              result:
+                $ref: "#/definitions/ProposalSubmissionSummary"
+        "300":
+          description: "Multiple choices"
+          schema:
+            $ref: "#/definitions/ErrorResponse_300"
+        "400":
+          description: "Invalid Request"
+          schema:
+            $ref: "#/definitions/ErrorResponse_400"
+        "401":
+          description: "Unauthorized - Basic authentication failed"
+          schema:
+            $ref: "#/definitions/ErrorResponse_401"
+        "403":
+          description: "Forbidden - UID passed is not authorized for iPrice"
+          schema:
+            $ref: "#/definitions/ErrorResponse_403"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorResponse_404"
+        "500":
+          description: "Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorResponse_500"
+definitions:
+  CustomerItem:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        properties:
+          acute:
+            type: "boolean"
+            example: true
+          address:
+            type: "string"
+            example: "400 STINSON BLVD"
+          ambulatory:
+            type: "boolean"
+            example: false
+          cityStateZip:
+            type: "string"
+            example: "MINNEAPOLIS, MN  55413-2613"
+          consolidationId:
+            type: "string"
+            example: null
+          consolidationName:
+            type: "string"
+            example: null
+          customerClass:
+            type: "string"
+            example: "AA"
+          customerClassDesc:
+            type: "string"
+            example: "Acute - Hosp Supply"
+          customerGroup:
+            type: "string"
+            example: "HB"
+          customerGroupDesc:
+            type: "string"
+            example: "Small/Medium Metro H"
+          customerName:
+            type: "string"
+            example: "FAIRVIEW HOSPITALS JIT"
+          customerNumber:
+            type: "string"
+            example: "0010000083"
+          customerType:
+            type: "string"
+            example: "AG"
+          customerTypeDescription:
+            type: "string"
+            example: "Soldto"
+          deletedIndicator:
+            type: "string"
+            example: null
+          distributionChannelIds:
+            type: "array"
+            items:
+              $ref: "#/definitions/DistributionChannel"
+          distributorCustomer:
+            type: "boolean"
+            example: false
+          governmentAccount:
+            type: "boolean"
+            example: false
+          indirectCustomer:
+            type: "boolean"
+            example: false
+          lab:
+            type: "boolean"
+            example: false
+          soldtoName:
+            type: "string"
+            example: "FAIRVIEW HOSPITALS JIT"
+          soldtoNumber:
+            type: "string"
+            example: "0010000083"
+          testAccount:
+            type: "boolean"
+            example: false
+          valuelinkInd:
+            type: "boolean"
+            example: false
+  DistributionChannel:
+    type: "object"
+    required:
+    - "id"
+    - "description"
+    properties:
+      id:
+        type: "string"
+        example: 10
+      description:
+        type: "string"
+        example: "Cardinal Distribution"
+  MaterialItem:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        properties:
+          materialNumber:
+            type: "string"
+            example: "D1906"
+          materialDescription:
+            type: "string"
+            example: "DISH PETRI 100X15MM"
+          marketingViewCode:
+            type: "string"
+            example: "M0080"
+          marketingViewDesc:
+            type: "string"
+            example: "Microbiology Accessories"
+          materialSourceType:
+            type: "string"
+            example: "PBP"
+          materialSourceTypeDesc:
+            type: "string"
+            example: "Private Brand"
+          materialStatus:
+            type: "string"
+            example: "Z2"
+          materialStatusDesc:
+            type: "string"
+            example: "Z2-Nat Disc Cardinal"
+          nonFileIndFlag:
+            type: "number"
+            example: 0
+          packagingFactor:
+            type: "string"
+            example: "CS/25.0PK"
+          productCategoryCode:
+            type: "string"
+            example: 15
+          productCategoryDesc:
+            type: "string"
+            example: "LAB"
+          unitOfMeasures:
+            type: "array"
+            items:
+              type: "string"
+            example:
+            - "EA"
+            - "CS"
+          vendorId:
+            type: "string"
+            example: 36938
+          vendorName:
+            type: "string"
+            example: "CARDINAL HEALTH"
+  Contract:
+    type: "object"
+    properties:
+      agreementCategoryType:
+        type: "string"
+        example: "GR"
+      agreementCategoryTypeDesc:
+        type: "string"
+        example: ""
+      agreementControlNum:
+        type: "string"
+        example: ""
+      agreementDescription:
+        type: "string"
+        example: "NDP C4 SMARTPRICE-M0018"
+      agreementExternalDescription:
+        type: "string"
+        example: "M0018"
+      agreementGPOLevel:
+        type: "string"
+        example: "GPO-001"
+      agreementGPOLevelDesc:
+        type: "string"
+        example: "CARDINAL HEALTH COURTESY"
+      agreementMaterialValidFromDateDisplay:
+        type: "string"
+        example: "10/01/2017"
+      agreementMaterialValidToDateDisplay:
+        type: "string"
+        example: "12/31/9999"
+      agreementNumber:
+        type: "string"
+        example: "4500323853"
+      agreementValidFromDateDisplay:
+        type: "string"
+        example: "01/01/2014"
+      agreementValidToDateDisplay:
+        type: "string"
+        example: "12/31/9999"
+      conditionNumber:
+        type: "string"
+        example: "0185562978"
+      currentNdpPriceAmount:
+        type: "string"
+        example: "$1.18575"
+      gpoLevel:
+        type: "string"
+        example: "GPO-001"
+      grouping:
+        type: "string"
+        example: "GR"
+      materialConditionType:
+        type: "string"
+        example: "ZCBK"
+      materialNumber:
+        type: "string"
+        example: "CAH45CP"
+      primaryAgreement:
+        type: "boolean"
+        example: true
+        description: "Indicates that this agreement is the winning agreement in the\
+          \ price quote for the customer/material."
+      rate:
+        type: "number"
+        example: 1.18575
+      rateDisplay:
+        type: "string"
+        example: "$1.186"
+      responseMessage:
+        type: "string"
+        example: ""
+      subGrouping:
+        type: "string"
+        example: ""
+      unitOfMeasure:
+        type: "string"
+        example: "EA"
+  ContractCustomer:
+    type: "object"
+    properties:
+      agreementNumber:
+        type: "string"
+        example: "4500717186"
+      conditionNumber:
+        type: "string"
+        example: "0214277527"
+      conditionType:
+        type: "string"
+        example: "ZEGS"
+      conditionValidFromDate:
+        type: "string"
+        example: "01/01/2014"
+        description: "Validity From Date for the agreement eligibility condition"
+      conditionValidToDate:
+        type: "string"
+        example: "12/31/9999"
+        description: "Validity To Date for the agreement eligibility condition"
+      customerNumber:
+        type: "string"
+        example: "0010000045"
+      membershipConditionNum:
+        type: "string"
+        example: "0207600080"
+      membershipConditionType:
+        type: "string"
+        example: "ZMB1"
+      membershipTier:
+        type: "string"
+        example: "LCL2PRB5GV"
+      membershipValidFromDate:
+        type: "string"
+        example: "01/01/2013"
+        description: "Validity From Date for the membership condition"
+      membershipValidToDate:
+        type: "string"
+        example: "12/31/9999"
+        description: "Validity To Date for the membership condition"
+      validFromDate:
+        type: "string"
+        example: "01/01/2014"
+        description: "Later of the conditionValidFromDate and membershipValidFromDate"
+      validToDate:
+        type: "string"
+        example: "12/31/9999"
+        description: "Later of the conditionValidToDate and membershipValidToDate"
+  ReportRequestOptions:
+    type: "object"
+    properties:
+      optionCode:
+        type: "string"
+        example: "A"
+        description: "Code value to be passed as the productType when requesting a\
+          \ report"
+      optionDesc:
+        type: "string"
+        example: "All Products"
+        description: "English description of the productType"
+      pchCount:
+        type: "string"
+        example: "32"
+        description: "Number of PCH records that exist for the customer provided and\
+          \ productType"
+  ReportRequest:
+    type: "object"
+    properties:
+      baseDateDisplay:
+        type: "string"
+        example: "05/02/2019"
+      compareDateDisplay:
+        type: "string"
+        example: ""
+      customerName:
+        type: "string"
+        example: "FAIRVIEW HOSPITALS JIT"
+      customerNumber:
+        type: "string"
+        example: "0010000083"
+      emailSendDateTime:
+        type: "string"
+        example: ""
+      gpoId:
+        type: "string"
+        example: ""
+      gpoName:
+        type: "string"
+        example: ""
+      labCount:
+        type: "string"
+        example: "0"
+      medsurgCount:
+        type: "string"
+        example: "0"
+      reportSubType:
+        type: "string"
+        example: "L"
+      reportSubTypeDescription:
+        type: "string"
+        example: "Lab"
+      reportType:
+        type: "string"
+        example: "PCC"
+      reportTypeDescription:
+        type: "string"
+        example: "Price Book"
+      requestId:
+        type: "integer"
+        example: 1604
+      requestedByUserId:
+        type: "string"
+        example: "julie.ecklund"
+      requestedDateTime:
+        type: "string"
+        example: "05/02/19 01:55 PM"
+      status:
+        type: "string"
+        example: "No Results - No 12 mo Usage"
+      statusDateTime:
+        type: "string"
+        example: "05/02/19 01:55 PM"
+      totalCount:
+        type: "string"
+        example: "0"
+  ProposalHeader:
+    type: "object"
+    required:
+    - "createdByUserId"
+    - "createdDateTime"
+    - "customerName"
+    - "customerNumber"
+    - "eanName"
+    - "eanNumber"
+    - "loadedCount"
+    - "modifiedDateTime"
+    - "pricingStatus"
+    - "pricingStatusDesc"
+    - "proposalDescription"
+    - "proposalId"
+    - "proposalType"
+    - "totalLineCount"
+    properties:
+      createdByUserId:
+        type: "string"
+        example: "julie.ecklund"
+      createdDateTime:
+        type: "string"
+        example: "05/01/19 10:26 AM"
+      customerName:
+        type: "string"
+        example: "FAIRVIEW HOSPITALS JIT"
+      customerNumber:
+        type: "string"
+        example: "0010000083"
+      eanName:
+        type: "string"
+        example: "FAIRVIEW HEALTH SERVICES"
+      eanNumber:
+        type: "string"
+        example: 9002838270
+      loadedCount:
+        type: "number"
+        example: 0
+        description: "Total number of lines loaded to ECC (including approved lines)"
+      modifiedDateTime:
+        type: "string"
+        example: "05/01/19 10:26 AM"
+      pricingStatus:
+        type: "integer"
+        example: 2
+        description: "Processing status of the proposal (does not relate to the load\
+          \ status of prices"
+      pricingStatusDesc:
+        type: "string"
+        example: "Complete"
+        description: "Processing status of the proposal (does not relate to the load\
+          \ status of prices)"
+      proposalDescription:
+        type: "string"
+        example: "20190501 FAIRVIEW HOSPITALS JIT"
+      proposalId:
+        type: "string"
+        example: 4536
+      proposalType:
+        type: "string"
+        example: "STD"
+      pendingApprovalCount:
+        type: "integer"
+        example: 1
+        description: "Total number of lines contained within the proposal that are\
+          \ pending approval"
+      rejectedCount:
+        type: "integer"
+        example: 1
+        description: "Total number of lines contained within the proposal that were\
+          \ rejected"
+      approvedCount:
+        type: "integer"
+        example: 1
+        description: "Total number of lines contained within the proposal that were\
+          \ approved"
+      totalLineCount:
+        type: "integer"
+        example: 1
+        description: "Total number of lines contained within the proposal"
+      loadStatusDesc:
+        type: "string"
+        example: "Loaded"
+        description: "Load status of the proposal. Values are Loaded, Rejected, Pending\
+          \ Approval, Not Submitted"
+  ProposalDetail:
+    type: "object"
+    required:
+    - "costForPriceSource"
+    - "costIndicator"
+    - "currentPrice"
+    - "currentPriceLockedIndicator"
+    - "currentPriceSource"
+    - "currentPriceSourceName"
+    - "currentPriceValidityFromDate"
+    - "currentPriceValidityToDate"
+    - "customerName"
+    - "customerNumber"
+    - "distributionChannel"
+    - "editingPermitted"
+    - "isNDPMaterial"
+    - "isPriceQuoteAvailable"
+    - "isPriceQuoteInvalid"
+    - "lineNumber"
+    - "maintPriceEffectiveDate"
+    - "maintenanceAlertClass"
+    - "maintenanceErrorCode"
+    - "maintenanceErrorDescription"
+    - "maintenancePrice"
+    - "maintenancePriceAdjMessage"
+    - "maintenancePriceAdjMessageDisplay"
+    - "maintenancePriceDisplay"
+    - "maintenancePriceEndDate"
+    - "materialDescription"
+    - "materialNumber"
+    - "materialSourceType"
+    - "materialSourceTypeDescription"
+    - "priceQuoteAsOfDate"
+    - "priceQuoteMessageNumber"
+    - "priceQuoteMessageText"
+    - "pricingStatus"
+    - "proposalId"
+    - "statusDateTime"
+    - "statusDescription"
+    - "supplierAgreementDescription"
+    - "supplierAgreementExtDescription"
+    - "supplierAgreementNumber"
+    - "targetPrice"
+    - "targetPriceAmount"
+    - "unitOfMeasure"
+    properties:
+      contractCostValidityDateFrom:
+        type: "string"
+        example: "07/10/16"
+      contractCostValidityDateTo:
+        type: "string"
+        example: "12/30/99"
+      costForPriceSource:
+        type: "string"
+        example: "Alternate GPO Cost (CARDINAL HEALTH COURTESY)"
+      costIndicator:
+        type: "string"
+        example: "AG"
+      costPlusDescription:
+        type: "string"
+        example: "Non Contracted Cost Plus"
+        description: "Contains the english description of what the Cost Plus rule\
+          \ would be if the maintenance were to be loaded as a Cost Plus"
+      costPlusPercentage:
+        type: "number"
+        example: 50
+        description: "Contains the percentage amount of what the Cost Plus rule would\
+          \ be if the maintenance were to be loaded as a Cost Plus"
+      costTierNum:
+        type: "string"
+      currentPrice:
+        type: "number"
+        example: 68.236
+        description: "The price currently setup for the customer/material as of the\
+          \ date provided for the quote"
+      currentPriceLockedIndicator:
+        type: "string"
+        example: true
+      currentPriceSource:
+        type: "string"
+        example: "LDA (LK)"
+      currentPriceSourceName:
+        type: "string"
+        example: null
+      currentPriceValidityFromDate:
+        type: "string"
+        example: "10/31/16"
+      currentPriceValidityToDate:
+        type: "string"
+        example: "12/30/99"
+      customerName:
+        type: "string"
+        example: "FAIRVIEW HOSPITALS JIT"
+      customerNumber:
+        type: "string"
+        example: 10000083
+      distAgreementDesc:
+        type: "string"
+        example: "CAH Brand Lab MU"
+      distAgreementExtDesc:
+        type: "string"
+        example: "CARDINAL BRAND LAB"
+      distAgreementNum:
+        type: "string"
+        example: 5500148389
+      distributionChannel:
+        type: "string"
+        example: 10
+      editingPermitted:
+        type: "boolean"
+        example: false
+        description: "Indicates if the user is permitted to edit and load a new price\
+          \ for this customer/material.  If false, reference the lockedMessage for\
+          \ details on why editing is not permitted."
+      isNDPMaterial:
+        type: "boolean"
+        example: false
+        description: "Indicates if Cardinal Brand pricing is being maintained for\
+          \ this material."
+      isPriceQuoteAvailable:
+        type: "boolean"
+        example: true
+        description: "Indicates if ECC was able to return results for the Price Quote\
+          \ request"
+      isPriceQuoteInvalid:
+        type: "boolean"
+        example: false
+        description: "Indicates if the Price Quote returned by ECC encountered any\
+          \ errors when processed.  If true, reference the priceQuoteMessageNumber\
+          \ and priceQuoteMessageText fields for more details."
+      lineNumber:
+        type: "integer"
+        example: 1
+      listLessPercentage:
+        type: "number"
+        example: 30.43
+        description: "Contains the percentage amount of what the List Less rule would\
+          \ be if the maintenance were to be loaded as a List Less"
+      lockedMessage:
+        type: "string"
+        example: "Cannot load a new price because price is locked."
+        description: "Provides the reason a price is not maintainable for a customer/material."
+      maintPriceEffectiveDate:
+        type: "string"
+        example: "05/01/2019"
+        description: "Effective date of the proposed maintenance price.  This will\
+          \ have a default value."
+      maintenanceAlertClass:
+        type: "string"
+        example: "alert-info"
+        description: "Indicates the severity level for the maintenanceErrorCode. \
+          \ alert-info=informational message; alert-warning=governance exception that\
+          \ will require approval; alert-danger=hard exception that prevents the price\
+          \ from being submitted."
+      maintenanceErrorCode:
+        type: "string"
+        example: 0
+        description: "Contains the governance exception as determined for the proposed\
+          \ price.  If no governance exception exists, this may also contain the priceQuoteMessageNumber\
+          \ (if applicable)"
+      maintenanceErrorDescription:
+        type: "string"
+        example: null
+        description: "Contains an english description for the maintenanceErrorCode"
+      maintenancePrice:
+        type: "number"
+        example: 82.5
+        description: "Proposed price being maintained by the user.  For distribution\
+          \ proposals, the initial default value is the currentPrice"
+      maintenancePriceAdjMessage:
+        type: "string"
+        example: null
+      maintenancePriceAdjMessageDisplay:
+        type: "string"
+        example: "PG"
+      maintenancePriceDescription:
+        type: "string"
+        example: "Non Contracted Cost Plus 50.00%"
+        description: "Full english description of how the maintenance price will be\
+          \ loaded"
+      maintenancePriceDisplay:
+        type: "string"
+        example: 82.5
+      maintenancePriceEndDate:
+        type: "string"
+        example: "05/31/2020"
+        description: "Expiration date of the proposed maintenance price.  This will\
+          \ have a default value."
+      maintenancePriceRule:
+        type: "string"
+        example: "C"
+        description: "Rule code indicating how the maintenance will be loaded.  P=Firm\
+          \ Price; C=Cost Plus; L=List Less"
+      maintenancePriceRuleAmt:
+        type: "number"
+        example: 50
+        description: "Rule percentage amount of the maintenance that will be loaded."
+      materialDescription:
+        type: "string"
+        example: "DISH PETRI 100X15MM"
+      materialNumber:
+        type: "string"
+        example: "D1906"
+      materialSourceType:
+        type: "string"
+        example: "PBP"
+      materialSourceTypeDescription:
+        type: "string"
+        example: "Private Brand"
+      priceQuoteAsOfDate:
+        type: "string"
+        example: "05/01/2019"
+        description: "Date for which the price quote was retrieved."
+      priceQuoteMessageNumber:
+        type: "string"
+        example: 0
+        description: "If the ECC price quoter encounters any issues, it will return\
+          \ a code in this field."
+      priceQuoteMessageText:
+        type: "string"
+        example: null
+        description: "Contains the english description for the ECC priceQuoteMessageNumber"
+      pricingStatus:
+        type: "integer"
+        example: 0
+        description: "Load status of this proposal line. 0=Not Submitted; 3=Loaded;\
+          \ 4=Pending Approval"
+      proposalId:
+        type: "integer"
+        example: 4536
+      statusDateTime:
+        type: "string"
+        example: null
+      statusDescription:
+        type: "string"
+        example: null
+      supplierAgreementDescription:
+        type: "string"
+        example: "NDP C4 SMARTPRICE-MICROBIO ACESSORIES"
+      supplierAgreementExtDescription:
+        type: "string"
+        example: "MICROBIO ACESSORIES"
+      supplierAgreementNumber:
+        type: "string"
+        example: 4500525063
+      targetPrice:
+        type: "string"
+        example: 75
+      targetPriceAmount:
+        type: "number"
+        example: 75
+      unitOfMeasure:
+        type: "string"
+        example: "CS"
+  Positions:
+    type: "object"
+    required:
+    - "positionCode"
+    - "saleItemGroupCode"
+    - "saleItemGroupDesc"
+    properties:
+      positionCode:
+        type: "string"
+        example: "WXYZ"
+      saleItemGroupCode:
+        type: "string"
+        example: "GMOR"
+      saleItemGroupDesc:
+        type: "string"
+        example: "Acute General Medical/OR"
+  ProposalSubmissionSummary:
+    type: "object"
+    required:
+    - "distributionCount"
+    - "ndpCount"
+    - "ndpDistributionCount"
+    - "ndpSubmissionRequestId"
+    - "newProposalId"
+    - "notLoadedCount"
+    - "notLoadedDeniedCount"
+    - "notLoadedFailedCount"
+    - "notLoadedNoChangesCount"
+    - "notLoadedNonFileCount"
+    - "notificationMessage"
+    - "pendingApprovalCount"
+    - "proposalId"
+    - "proposalType"
+    - "submittedCount"
+    - "totalCount"
+    properties:
+      NDPConfirmationMessage:
+        type: "string"
+        example: "Remember to submit a New Business Processor (NBP) request if forecast\
+          \ load is needed"
+      distributionCount:
+        type: "integer"
+        example: 0
+        description: "Total number of distribution prices successfully loaded"
+      ndpCount:
+        type: "integer"
+        example: 0
+        description: "Total number of Cardinal Brand (NDP) prices successfully loaded"
+      ndpDistributionCount:
+        type: "integer"
+        example: 0
+        description: "Total number of distribution markups loaded for Cardinal Brand\
+          \ prices"
+      ndpSubmissionRequestId:
+        type: "integer"
+        example: 0
+      newProposalId:
+        type: "integer"
+        example: 0
+      notLoadedCount:
+        type: "integer"
+        example: 1
+        description: "Total number not loaded"
+      notLoadedDeniedCount:
+        type: "integer"
+        example: 1
+        description: "Total number of not loaded because loading was prohibited (i.e.\
+          \ locked price)"
+      notLoadedFailedCount:
+        type: "integer"
+        example: 0
+        description: "Total number not loaded due to a failure"
+      notLoadedNoChangesCount:
+        type: "integer"
+        example: 0
+        description: "Total number not loaded because the price has not changed"
+      notLoadedNonFileCount:
+        type: "integer"
+        example: 0
+        description: "Total number not loaded because the matieral is a non-file (invalid)"
+      notificationMessage:
+        type: "string"
+        example: null
+      pendingApprovalCount:
+        type: "integer"
+        example: 0
+        description: "Total number submitted but are pending governance approval"
+      proposalId:
+        type: "integer"
+        example: 4549
+      proposalType:
+        type: "string"
+        example: "STD"
+      submitToBatch:
+        type: "boolean"
+        example: false
+      submittedCount:
+        description: "Total number of lines submitted"
+        type: "integer"
+        example: 1
+      totalCount:
+        type: "integer"
+        example: 1
+        description: "Total number of lines processed"
+      tradexDeviationProposal:
+        type: "boolean"
+        example: false
+      tradexProposal:
+        type: "boolean"
+        example: false
+      tradexStockProposal:
+        type: "boolean"
+        example: false
+  ErrorResponse_300:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        - "positions"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "Please select a Position Code"
+          positions:
+            type: "array"
+            items:
+              $ref: "#/definitions/Positions"
+  ErrorResponse_400:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "customerNumber parameter is required"
+  ErrorResponse_401:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "Unable to authorize access."
+  ErrorResponse_403:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "User dummy01 could not be logged on because account does not\
+              \ exist in iPrice"
+  ErrorResponse_404:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "Customer Not Found"
+  ErrorResponse_500:
+    type: "object"
+    required:
+    - "result"
+    properties:
+      result:
+        type: "object"
+        required:
+        - "errorMessage"
+        properties:
+          errorMessage:
+            type: "string"
+            example: "This API is currently disabled and is not available for use."
+host: "api.dev.cardinalhealth.com"
+schemes:
+- "https"
